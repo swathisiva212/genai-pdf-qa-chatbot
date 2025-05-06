@@ -30,6 +30,7 @@ Import and initialize ChatOpenAI with:
 
 Model name (gpt-4).
 Temperature (0) for deterministic responses.
+
 5)Create a Retrieval Prompt:
 Define a concise, user-friendly prompt template to:
 
@@ -46,6 +47,7 @@ Specifying the language model (llm).
 Linking the retriever (vectordb.as_retriever()).
 Applying the prompt template.
 Enabling source document return for transparency.
+
 7)Run the Query:
 Take a query (question) as input.
 
