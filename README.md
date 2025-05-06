@@ -13,17 +13,18 @@ Input: PDF document path.
 Output: Document loader, embeddings, vector database, prompt, and chain.
 
 2)Load PDF Content:
-Import and initialize the PyPDFLoader with the provided PDF file path.
 
+Import and initialize the PyPDFLoader with the provided PDF file path.
 Extract the content of the PDF into pages.
 
 3)Embed the Document Chunks:
+
 Import and initialize OpenAIEmbeddings to generate embeddings.
 
 Initialize the Chroma vector database with:
-
 Persistent storage directory (persist_directory).
 The embedding function.
+
 4)Define the Language Model:
 Import and initialize ChatOpenAI with:
 
