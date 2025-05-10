@@ -62,50 +62,42 @@ Print the chatbot’s answer (result["result"]).
 
 ### PROGRAM:
 ```
-# Step 1: Install necessary packages (run in Jupyter or terminal)
-# !pip install langchain openai pypdf chromadb tiktoken python-dotenv
-
-# Step 2: Import libraries
 from langchain.document_loaders import PyPDFLoader
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
-from langchain.chains import RetrievalQA
-from langchain.chat_models import ChatOpenAI
-
-import os
-from dotenv import load_dotenv
-
-# Step 3: Load environment variables
-load_dotenv()
-openai_api_key = os.getenv("OPENAI_API_KEY")
-
-# Step 4: Load and split the PDF
-loader = PyPDFLoader("ml_lecture.pdf")
+loader = PyPDFLoader("tech.pdf")
 pages = loader.load()
 
-text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-documents = text_splitter.split_documents(pages)
+from langchain.vectorstores import Chroma
+from langchain.embeddings.openai import OpenAIEmbeddings
+persist_directory = 'docs/chroma/'
+embedding = OpenAIEmbeddings()
+vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
 
-# Step 5: Create embeddings and vector store
-embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
-vectorstore = Chroma.from_documents(documents, embeddings)
+from langchain.chat_models import ChatOpenAI
+llm = ChatOpenAI(model_name='gpt-4', temperature=0)
 
-# Step 6: Create QA chain with retriever
-retriever = vectorstore.as_retriever()
-qa_chain = RetrievalQA.from_chain_type(
-    llm=ChatOpenAI(openai_api_key=openai_api_key, temperature=0),
-    chain_type="stuff",
-    retriever=retriever
-)
+# Build prompt
+from langchain.prompts import PromptTemplate
+template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Use three sentences maximum. Keep the answer as concise as possible. Always say "thanks for asking!" at the end of the answer. 
+{context}
+Question: {question}
+Helpful Answer:"""
+QA_CHAIN_PROMPT = PromptTemplate(input_variables=["context", "question"],template=template,)
 
-# Step 7: Query the chatbot
-query = "What is the main topic discussed in the document?"
-response = qa_chain.run(query)
-print("Answer:", response)
+# Run chain
+from langchain.chains import RetrievalQA
+question = "Is probability a class topic?"
+qa_chain = RetrievalQA.from_chain_type(llm,
+                                       retriever=vectordb.as_retriever(),
+                                       return_source_documents=True,
+                                       chain_type_kwargs={"prompt": QA_CHAIN_PROMPT})
+
+result = qa_chain({"query": question})
+print("Question: ", question)
+print("Answer: ", result["result"])
 ```
 
 ### OUTPUT:
+![image](https://github.com/user-attachments/assets/1f287b68-18c8-4d6f-b83c-e599b669aa20)
 
 ### RESULT:
 Prompt: A structured prompt template was designed to pass the document content and user query to the language model.
