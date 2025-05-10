@@ -39,7 +39,6 @@ Use context from the document.
 Limit answers to three sentences.
 
 Encourage polite responses with "Thanks for asking!" at the end.
-
 6) Build the Retrieval Chain:
 Initialize the RetrievalQA chain by:
 
